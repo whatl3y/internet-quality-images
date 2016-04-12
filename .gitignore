@@ -1,0 +1,7 @@
+# ignore
+/tests
+/logs
+/documentation
+/node_modules
+/.env_windows
+/.env_linux

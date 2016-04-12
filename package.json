@@ -1,0 +1,39 @@
+{
+  "name": "internetqualityimages",
+  "version": "1.0.0",
+  "description": "Makes internet-friendly images from a web app.",
+  "main": "index.js",
+  "engines": {
+    "node": ">=0.12"
+  },
+  "repository": {
+    "type": "git",
+    "url" : "https://github.com/whatl3y/internetqualityimages.git"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "dependencies": {
+    "bunyan": "1.5.1",
+    "node-uuid": "^1.4.7",
+    "express": "^4.8.0",
+    "express-session": "^1.10.3",
+    "express-formidable": "^0.1.2",
+    "cookie-parser": "^1.3.4",
+    "body-parser": "^1.12.0",
+    "path": "^0.11.14",
+    "nodemailer": "^2.2.0",
+    "mongodb": "~1.4.30",
+    "connect-mongo": "^0.7.0",
+    "sticky-session": "^1.0.2",
+    "gridfs-stream": "^1.1.1",
+    "underscore": "^1.8.3",
+    "async": "^1.5.2",
+    "jimp": "^0.2.21",
+    "imageinfo": "^1.0.4",
+    "archiver", "^1.0.0",
+    "streamifier": "^0.1.1"
+  },
+  "author": "Lance Whatley",
+  "license": "ISC"
+}

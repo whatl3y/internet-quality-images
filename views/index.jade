@@ -1,0 +1,22 @@
+extends layout
+
+block main
+  div(class="row",data-ng-controller="imageProcessingCtrl")
+    div(class="col-xs-12 text-center")
+      div(class="row")
+        div(class="col-xs-12")
+          h1 Create Internet Friendly Images!
+      div(class="row separate-vert-medium")
+        div(class="col-xs-12 col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4")
+          input(type="text",class="form-control input-lg separate-vert-small",placeholder="E-mail Address")
+          input(style="display:none",id="imageFile",type="file",class="form-control",fileread="newImage")
+          button(class="btn btn-success btn-lg",data-ng-click="handlers.fileInputClick()") Create Internet Friendly Images Now
+      div(class="row")
+        div(class="col-xs-12")
+          div We will e-mail you with a link to the processed files, stored as a .zip file once all images have been created.
+      div(class="row separate-vert-medium",data-ng-show="uploadError")
+        div(class="col-xs-12 col-md-8 col-md-offset-2")
+          alert(type="danger") {{ uploadError }}
+      div(class="row text-left")
+        div(class="separate-vert-small col-xs-6 col-sm-4 col-md-3 col-lg-1",data-ng-repeat="type in processTypes")
+          div {{ type.key }}
