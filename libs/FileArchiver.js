@@ -39,8 +39,12 @@ FileArchiver.prototype.startListening=function(cb) {
   cb = cb || function(){};
   var self = this;
   
+  var endFunctionExecuted = false
   var endFunction = function() {
-    self.fileHandler.uploadFile({readStream:self.archive, filename:self.name, exactname:1},cb);
+    if (!endFunctionExecuted) {
+      endFunctionExecuted = true;
+      self.fileHandler.uploadFile({readStream:self.archive, filename:self.name, exactname:1},cb);
+    }
   }
   
   this.archive.removeAllListeners("end");
@@ -64,6 +68,8 @@ FileArchiver.prototype.startListening=function(cb) {
 FileArchiver.prototype.createArchive=function(name,type) {
   try {
     this.archive = archiver.create(type || "zip", {name: name || this.name}); // or archiver('zip', {});
+    this.archive.setMaxListeners(100);
+    
     return this.archive;
   } catch(err) {
     return err;

@@ -8,7 +8,7 @@ block main
           h1 Create Internet Friendly Images!
       div(class="row separate-vert-medium")
         div(class="col-xs-12 col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4")
-          input(type="text",class="form-control input-lg separate-vert-small",placeholder="E-mail Address")
+          input(type="text",class="form-control input-lg separate-vert-small",placeholder="E-mail Address",data-ng-model="email")
           input(style="display:none",id="imageFile",type="file",class="form-control",fileread="newImage")
           button(class="btn btn-success btn-lg",data-ng-click="handlers.fileInputClick()") Create Internet Friendly Images Now
       div(class="row")
@@ -18,5 +18,8 @@ block main
         div(class="col-xs-12 col-md-8 col-md-offset-2")
           alert(type="danger") {{ uploadError }}
       div(class="row text-left")
-        div(class="separate-vert-small col-xs-6 col-sm-4 col-md-3 col-lg-1",data-ng-repeat="type in processTypes")
-          div {{ type.key }}
+        div(class="separate-vert-small col-xs-6 col-sm-4 col-md-3 col-lg-2",data-ng-repeat="type in processTypes")
+          div(style="background:#F8F8F8",class="checkbox padding-medium")
+            label
+              input(type="checkbox",name="types",data-ng-model="typesSelected[type.key]",data-ng-true-value="true",data-ng-false-value="false")
+              span {{ type.name }}

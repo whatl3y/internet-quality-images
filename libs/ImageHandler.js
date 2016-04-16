@@ -114,7 +114,6 @@ function imageWriteTypeFunction(type,destination,mime) {
       jimpImage
         [writeFunction](dest || mime,cb);
     },
-    
     tiny: function(pathOrBuffer,jimpImage,cb) {
       jimpImage
         .resize(100,Jimp.AUTO)
@@ -138,6 +137,26 @@ function imageWriteTypeFunction(type,destination,mime) {
     xlarge: function(pathOrBuffer,jimpImage,cb) {
       jimpImage
         .resize(1620,Jimp.AUTO)
+        [writeFunction](dest || mime,cb);
+    },
+    gray: function(pathOrBuffer,jimpImage,cb) {
+      jimpImage
+        .greyscale()
+        [writeFunction](dest || mime,cb);
+    },
+    invertColors: function(pathOrBuffer,jimpImage,cb) {
+      jimpImage
+        .invert()
+        [writeFunction](dest || mime,cb);
+    },
+    flipHorizontal: function(pathOrBuffer,jimpImage,cb) {
+      jimpImage
+        .flip(true,false)
+        [writeFunction](dest || mime,cb);
+    },
+    flipVertical: function(pathOrBuffer,jimpImage,cb) {
+      jimpImage
+        .flip(false,true)
         [writeFunction](dest || mime,cb);
     },
     opaque: function(pathOrBuffer,jimpImage,cb) {

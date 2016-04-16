@@ -5,6 +5,10 @@ function imageProcessingCtrl($scope,$http,Upload) {
         if (err) return $scope.uploadError = err;
         
         $scope.processTypes = data.types;
+        $scope.typesSelected  = {};
+        _.each($scope.processTypes,function(t) {
+          $scope.typesSelected[t.key] = true;
+        });
       });
     },
     
@@ -33,7 +37,13 @@ function imageProcessingCtrl($scope,$http,Upload) {
   
   $scope.handlers= {
     fileInputClick: function() {
-      angular.element( "#imageFile" ).trigger("click");
+      delete($scope.uploadError);
+      
+      if ($scope.email && /^.+@.+\.[\w\d]{1,10}$/.test($scope.email)) {
+        angular.element( "#imageFile" ).trigger("click");
+      } else {
+        $scope.uploadError = "Please enter a valid e-mail address (email@domain.com) for us to notify you when you're images are done being processed.";
+      }
     },
     
     uploadFile: function(file,name) {
@@ -45,10 +55,12 @@ function imageProcessingCtrl($scope,$http,Upload) {
       delete($scope.uploadError);
       
       if ($scope.files) {
-        $scope.functions.fileAjax($scope.files,{type:"processImage"},function(err,data) {
+        var loader = new Core.Modals().asyncLoader({message:"We're processing your image now! Please feel free to continue working!"});
+        $scope.functions.fileAjax($scope.files,{type:"processImage",types:$scope.typesSelected},function(err,data) {
           if (err) return $scope.uploadError = err;
           
           console.log(err,data);
+          loader.remove();
         })
       } else {
         $scope.uploadError = "There are no images to process!";

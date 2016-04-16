@@ -31,7 +31,7 @@
     "async": "^1.5.2",
     "jimp": "^0.2.21",
     "imageinfo": "^1.0.4",
-    "archiver", "^1.0.0",
+    "archiver": "^1.0.0",
     "streamifier": "^0.1.1"
   },
   "author": "Lance Whatley",

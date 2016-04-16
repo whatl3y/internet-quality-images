@@ -45,6 +45,9 @@
         });
         
       } else {
+        var typesSelected = JSON.parse(info.types);
+        var typesSelectedKeys = Object.keys(typesSelected);
+        
         var imageData = [];
         
         var zipName = "InternetQualityImages.com_" + Date.now() + ".zip";
@@ -74,29 +77,56 @@
             });
           },
           function(callback) {
-            var newFileName = arch.fileHandler.getFileName(imageData[0].name,"tiny");
+            var updatedImages = [];
             
-            ImageHandler.applyChange({image:imageData[0].data, type:"tiny"},function(err,newFileBuffer) {
-              callback(err,newFileName,newFileBuffer);
-            });
-          },
-          function(newFileName,newFileBuffer,callback) {
-            try {
-              var newFileReadStream = streamifier.createReadStream(newFileBuffer);
+            async.each(typesSelectedKeys,function(sel,_callback) {
+              var key = sel;
+              var shouldCreate = typesSelected[key];
               
-              arch.fileHandler.uploadFile({readStream:newFileReadStream, filename:newFileName, exactname:1},function(err,_newFileName) {
-                if (err) return callback(err);
+              if (shouldCreate) {
+                var newFileName = arch.fileHandler.getFileName(imageData[0].name,key);
                 
-                imageData.push({
-                  name: _newFileName,
-                  data: newFileBuffer
+                ImageHandler.applyChange({image:imageData[0].data, type:key},function(err,newFileBuffer) {
+                  if (err) return _callback(err);
+                  
+                  updatedImages.push({
+                    name: newFileName,
+                    data: newFileBuffer
+                  });
+                  return _callback(null);
                 });
+              } else {
+                _callback(null);
+              }
+            },
+              function(__e) {
+                callback(__e,updatedImages);
+              }
+            );
+          },
+          function(allUpdatedImages,callback) {
+            async.each(allUpdatedImages,function(i,_callback) {
+              try {
+                i.stream = streamifier.createReadStream(i.data);
                 
-                callback(null,imageData);
-              });
-            } catch(_e) {
-              callback(_e);
-            }
+                arch.fileHandler.uploadFile({readStream:i.stream, filename:i.name, exactname:1},function(err,_newFileName) {
+                  if (err) return _callback(err);
+                  
+                  imageData.push({
+                    name: _newFileName,
+                    data: i.data
+                  });
+                  
+                  _callback(null);
+                });
+              } catch(_e) {
+                _callback(_e);
+              }
+            },
+              function(__e) {
+                callback(__e,imageData);
+              }
+            );
           },
           function(imageData,callback) {
             async.each(imageData,function(iData,_callback) {
@@ -122,6 +152,21 @@
               });
               callback();
             });
+          },
+          function(callback) {
+            try {
+              config.mongodb.db.collection("processed_images").insert({
+                guid: uuid.v1(),
+                images: imageData.map(function(id) {return id.name}),
+                zip: imageData[imageData.length-1].name,
+                email: "",
+                date: new Date()
+              },function(err) {
+                callback(err);
+              });
+            } catch(e) {
+              callback(e);
+            }
           }
         ],
           function(err) {
@@ -131,7 +176,7 @@
               return;
             }
             
-            res.json({success:true, data:imageData});
+            res.json({success:true, data:imageData.map(function(id) {return id.name})});
           }
         );
       }

@@ -1,8 +1,7 @@
 var fs = require("fs");
-var _ = require("underscore");
+var async = require("async");
 var MDB = require("./MDB.js");
 var config = require("./config.js");
-var log = require("bunyan").createLogger(config.logger.options());
 
 /*-----------------------------------------------------------------------------------------
 |TITLE:    RouteHandler.js
@@ -32,7 +31,7 @@ RouteHandler.prototype.update=function(cb) {
   var self=this;
   
   fs.readdir(this.path,function(err,files) {
-    _.each(files,function(file) {
+    async.each(files,function(file,callback) {
       fs.readFile(self.path+"/"+file,{encoding:"utf8"},function(_err,content) {
         if (_err) log.error(_err);
         else {
@@ -56,16 +55,16 @@ RouteHandler.prototype.update=function(cb) {
                   active: true
                 }
               },{upsert:true},function(_e,result) {
-                log.debug(_e,result);
-                //db.close();
+                callback(_e)
               });
             }
           });
         }
       });
+    },
+    function(err) {
+      if (typeof cb==="function") cb(err);
     });
-    
-    if (typeof cb==="function") setTimeout(function(){cb();},1000);
   });
 }
 
