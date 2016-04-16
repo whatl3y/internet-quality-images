@@ -131,12 +131,12 @@ function imageWriteTypeFunction(type,destination,mime) {
     },
     large: function(pathOrBuffer,jimpImage,cb) {
       jimpImage
-        .resize(1028,Jimp.AUTO)
+        .resize(768,Jimp.AUTO)
         [writeFunction](dest || mime,cb);
     },
     xlarge: function(pathOrBuffer,jimpImage,cb) {
       jimpImage
-        .resize(1620,Jimp.AUTO)
+        .resize(1024,Jimp.AUTO)
         [writeFunction](dest || mime,cb);
     },
     gray: function(pathOrBuffer,jimpImage,cb) {

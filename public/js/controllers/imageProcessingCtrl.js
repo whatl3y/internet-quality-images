@@ -4,10 +4,18 @@ function imageProcessingCtrl($scope,$http,Upload) {
       $scope.functions.ajax({type:"init"},function(err,data) {
         if (err) return $scope.uploadError = err;
         
+        console.log(data);
         $scope.processTypes = data.types;
-        $scope.typesSelected  = {};
-        _.each($scope.processTypes,function(t) {
-          $scope.typesSelected[t.key] = true;
+        $scope.functions.flipTypesSelected();
+      });
+    },
+    
+    flipTypesSelected: function() {
+      $scope.typesSelected = $scope.typesSelected || {};
+      
+      _.each($scope.processTypes,function(categories) {
+        _.each(categories,function(t) {
+          $scope.typesSelected[t.key] = !$scope.typesSelected[t.key];
         });
       });
     },
@@ -56,7 +64,7 @@ function imageProcessingCtrl($scope,$http,Upload) {
       
       if ($scope.files) {
         var loader = new Core.Modals().asyncLoader({message:"We're processing your image now! Please feel free to continue working!"});
-        $scope.functions.fileAjax($scope.files,{type:"processImage",types:$scope.typesSelected},function(err,data) {
+        $scope.functions.fileAjax($scope.files,{type:"processImage", types:$scope.typesSelected, email:$scope.email},function(err,data) {
           if (err) return $scope.uploadError = err;
           
           console.log(err,data);

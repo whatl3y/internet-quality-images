@@ -13,7 +13,7 @@
     case "init":
       async.parallel([
         function(callback) {
-          config.mongodb.db.collection("process_types").find({active:{ $ne:false }},{_id:0}).sort({name:1}).toArray(function(e,types) {
+          config.mongodb.db.collection("process_types").find({active:{ $ne:false }},{_id:0}).sort({category:1,name:1}).toArray(function(e,types) {
             callback(e,types);
           });
         }
@@ -25,8 +25,13 @@
           }
           
           var types = results[0];
+          var oTypes = {};
+          _.each(types,function(t) {
+            oTypes[t.category] = oTypes[t.category] || [];
+            oTypes[t.category].push(t);
+          });
           
-          res.json({success:true, types:types});
+          res.json({success:true, types:oTypes});
         }
       );
       
@@ -45,6 +50,7 @@
         });
         
       } else {
+        var packageEmail = info.email;
         var typesSelected = JSON.parse(info.types);
         var typesSelectedKeys = Object.keys(typesSelected);
         
@@ -124,11 +130,11 @@
               }
             },
               function(__e) {
-                callback(__e,imageData);
+                callback(__e);
               }
             );
           },
-          function(imageData,callback) {
+          function(callback) {
             async.each(imageData,function(iData,_callback) {
               var called = false;
               arch.addFile({fileName:iData.name, data:iData.data},function(data) {
@@ -155,12 +161,16 @@
           },
           function(callback) {
             try {
+              var expDate = new Date();
+              expDate.setDate(expDate.getDate() + 30);
+              
               config.mongodb.db.collection("processed_images").insert({
                 guid: uuid.v1(),
                 images: imageData.map(function(id) {return id.name}),
                 zip: imageData[imageData.length-1].name,
-                email: "",
-                date: new Date()
+                email: packageEmail,
+                date: new Date(),
+                expiration_date: expDate
               },function(err) {
                 callback(err);
               });
