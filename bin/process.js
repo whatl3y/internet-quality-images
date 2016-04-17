@@ -1,13 +1,16 @@
 var async = require("async");
 var ImageHandler = require("../libs/ImageHandler.js");
-var FileArchiver = require("./libs/FileArchiver.js");
-var Audit = require("../libs/Audit.js");
+var FileArchiver = require("../libs/FileArchiver.js");
 var config = require("../libs/config.js");
 
-var audit = new Audit({ip:req.ip, hostname:req.hostname, ua:req.headers['user-agent']});
 var guidsProcessed = [];
 
 async.waterfall([
+  function(callback) {
+    config.mongodb.initialize(function(err,options) {
+      callback(err);
+    });
+  },
   function(callback) {
     config.mongodb.db.collection("processed_images").find({isProcessed:{$ne:true}}).toArray(function(err,unprocessed) {
       callback(err,unprocessed);
@@ -21,7 +24,7 @@ async.waterfall([
       var zipName = "InternetQualityImages.com_" + Date.now() + ".zip";
       var arch = new FileArchiver({db:config.mongodb.db, name:zipName});
 
-      ImageHandler.process({guid:imageGuid, archiver:arch},function(err,imageData) {
+      ImageHandler.process({guid:imageGuid, db:config.mongodb.db, archiver:arch},function(err,imageData) {
         guidsProcessed.push(imageGuid);
         _callback(err);
       });
@@ -32,9 +35,10 @@ async.waterfall([
     );
   }
 ],
-  function(err,result) {
-    if (err) return log.info(err);
+  function(err) {
+    config.mongodb.MDB.close();
+    if (err) return console.log(err);
     
-    log.debug("Successfully processed images with GUIDs: " + guidsProcessed.join(" ,"));
+    console.log("Successfully processed all images at " + new Date() + "!");
   }
 );

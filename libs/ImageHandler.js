@@ -219,6 +219,7 @@ function imageWriteTypeFunction(type,destination,mime) {
 -----------------------------------------------------------------------------------------*/
 function processAndArchive(options,cb) {
   try {
+    var db = options.db || config.mongodb.db;
     var uniqueId = options.guid;
     var arch = options.archiver || new require("./FileArchiver.js")();
     var self = this;
@@ -227,7 +228,7 @@ function processAndArchive(options,cb) {
     
     async.waterfall([
       function(callback) {
-        config.mongodb.db.collection("processed_images").find({guid:uniqueId}).toArray(function(e,record) {
+        db.collection("processed_images").find({guid:uniqueId}).toArray(function(e,record) {
           if (e) return callback(e);
           if (!record || !record.length) return callback("There is no record with the uniqueidentifier: " + uniqueId);
           if (record[0].isProcessed) return callback("This image has already been processed.");
@@ -331,7 +332,7 @@ function processAndArchive(options,cb) {
           var expDate = new Date();
           expDate.setDate(expDate.getDate() + 30);
           
-          config.mongodb.db.collection("processed_images").update({guid:uniqueId},{
+          db.collection("processed_images").update({guid:uniqueId},{
             $set: {
               images: imageData.map(function(id) {return id.name}),
               zip: imageData[imageData.length-1].name,
