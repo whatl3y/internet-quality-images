@@ -493,3 +493,11 @@ div.asyncloader {
 .ad-wrapper {
   text-align: center;
 }
+
+.type-selection {
+  background: #F8F8F8;
+}
+
+.type-selection:hover {
+  background: #EFEFEF;
+}

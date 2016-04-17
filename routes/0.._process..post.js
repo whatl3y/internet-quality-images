@@ -13,7 +13,7 @@
     case "init":
       async.parallel([
         function(callback) {
-          config.mongodb.db.collection("process_types").find({active:{ $ne:false }},{_id:0}).sort({category:1,name:1}).toArray(function(e,types) {
+          config.mongodb.db.collection("process_types").find({active:{ $ne:false }},{_id:0}).sort({category:1,order:1,name:1}).toArray(function(e,types) {
             callback(e,types);
           });
         }
@@ -52,16 +52,12 @@
       } else {
         var packageEmail = info.email;
         var typesSelected = JSON.parse(info.types);
-        var typesSelectedKeys = Object.keys(typesSelected);
         
-        var imageData = [];
-        
-        var zipName = "InternetQualityImages.com_" + Date.now() + ".zip";
-        var arch = new FileArchiver({db:config.mongodb.db, name:zipName});
+        var fileHandler = new FileHandler({db:config.mongodb.db});
         
         async.waterfall([
           function(callback) {
-            arch.fileHandler.uploadFile({path:filePath, filename:fileName},function(err,newFileName) {
+            fileHandler.uploadFile({path:filePath, filename:fileName},function(err,newFileName) {
               callback(err,newFileName);
               
               fs.unlink(filePath,function(e) {
@@ -69,124 +65,34 @@
               });
             })
           },
-          function(mainImageFileName,callback) {
-            arch.fileHandler.getFile({file:mainImageFileName, encoding:"base64"},function(err,base64Data) {
-              if (err) return callback(err);
-              
-              var bufferData = new Buffer(base64Data,"base64");
-              
-              imageData.push({
-                name: mainImageFileName,
-                data: bufferData
-              });
-              callback();
-            });
-          },
-          function(callback) {
-            var updatedImages = [];
-            
-            async.each(typesSelectedKeys,function(sel,_callback) {
-              var key = sel;
-              var shouldCreate = typesSelected[key];
-              
-              if (shouldCreate) {
-                var newFileName = arch.fileHandler.getFileName(imageData[0].name,key);
-                
-                ImageHandler.applyChange({image:imageData[0].data, type:key},function(err,newFileBuffer) {
-                  if (err) return _callback(err);
-                  
-                  updatedImages.push({
-                    name: newFileName,
-                    data: newFileBuffer
-                  });
-                  return _callback(null);
-                });
-              } else {
-                _callback(null);
-              }
-            },
-              function(__e) {
-                callback(__e,updatedImages);
-              }
-            );
-          },
-          function(allUpdatedImages,callback) {
-            async.each(allUpdatedImages,function(i,_callback) {
-              try {
-                i.stream = streamifier.createReadStream(i.data);
-                
-                arch.fileHandler.uploadFile({readStream:i.stream, filename:i.name, exactname:1},function(err,_newFileName) {
-                  if (err) return _callback(err);
-                  
-                  imageData.push({
-                    name: _newFileName,
-                    data: i.data
-                  });
-                  
-                  _callback(null);
-                });
-              } catch(_e) {
-                _callback(_e);
-              }
-            },
-              function(__e) {
-                callback(__e);
-              }
-            );
-          },
-          function(callback) {
-            async.each(imageData,function(iData,_callback) {
-              var called = false;
-              arch.addFile({fileName:iData.name, data:iData.data},function(data) {
-                if (!called) {
-                  called = true;
-                  _callback();
-                }
-              });
-            },
-            function(err) {
-              callback(err);
-            });            
-          },
-          function(callback) {
-            arch.done(function(err,_zipName) {
-              if (err) return callback(err);
-              
-              imageData.push({
-                name: zipName,
-                data: "N/A"
-              });
-              callback();
-            });
-          },
-          function(callback) {
+          function(newFileName,callback) {
             try {
+              var uid = uuid.v1();
               var expDate = new Date();
               expDate.setDate(expDate.getDate() + 30);
               
               config.mongodb.db.collection("processed_images").insert({
-                guid: uuid.v1(),
-                images: imageData.map(function(id) {return id.name}),
-                zip: imageData[imageData.length-1].name,
+                guid: uid,
+                imageName: newFileName,
+                processTypes: typesSelected,
                 email: packageEmail,
-                date: new Date(),
-                expiration_date: expDate
+                date: new Date()
               },function(err) {
-                callback(err);
+                callback(err,uid);
               });
             } catch(e) {
               callback(e);
             }
           }
         ],
-          function(err) {
+          function(err,uid) {
             if (err) {
               res.json({success:false, error:"There was an error while converting your images."});
               log.error(err);
               return;
             }
             
-            res.json({success:true, data:imageData.map(function(id) {return id.name})});
+            res.json({success:true, guid:uid});
           }
         );
       }

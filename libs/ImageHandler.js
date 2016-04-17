@@ -2,7 +2,9 @@ var fs = require("fs");
 var async = require("async");
 var imageinfo = require("imageinfo");
 var Jimp = require("jimp");
+var streamifier = require("streamifier");
 var Object = require("../public/js/Object_prototypes.js");
+var config = require("./config.js");
 
 /*-----------------------------------------------------------------------------------------
 |TITLE:    ImageHandler.js
@@ -17,8 +19,11 @@ var Object = require("../public/js/Object_prototypes.js");
 ImageHandler = module.exports = {
   applyChange: change,
   change: change,
+  info: imageInfo,
   infoFile: imageInfoFile,
-  infoBuffer: getBufferImageInfo
+  infoBuffer: getBufferImageInfo,
+  process: processAndArchive,
+  processAndArchive: processAndArchive
 }
 
 /*-----------------------------------------------------------------------------------------
@@ -56,6 +61,21 @@ function change(obj,cb) {
       cb(err,writeResult);
     }
   );
+}
+
+/*-----------------------------------------------------------------------------------------
+|NAME:      imageInfo (PUBLIC)
+|DESCRIPTION:  Gets information about an image given a file path
+|PARAMETERS:  1. image(REQ): The strategy type we're authenticating with
+|             2. cb(REQ): 
+|SIDE EFFECTS:  Nothing
+|ASSUMES:    Nothing
+|RETURNS:    Nothing
+-----------------------------------------------------------------------------------------*/
+function imageInfo(image,cb) {
+  if (typeof image === "string") return imageInfoFile(image,cb);
+  
+  return getBufferImageInfo(image,cb);
 }
 
 /*-----------------------------------------------------------------------------------------
@@ -110,6 +130,9 @@ function imageWriteTypeFunction(type,destination,mime) {
   var writeFunction = (typeof dest === "string") ? "write" : "getBuffer";
   
   var typeFunctions = {
+    customWidth: function(pathOrBuffer,jimpImage,cb) {
+      
+    },    
     same: function(pathOrBuffer,jimpImage,cb) {
       jimpImage
         [writeFunction](dest || mime,cb);
@@ -154,6 +177,16 @@ function imageWriteTypeFunction(type,destination,mime) {
         .flip(true,false)
         [writeFunction](dest || mime,cb);
     },
+    makeSquare: function(pathOrBuffer,jimpImage,cb) {
+      imageInfo(pathOrBuffer,function(err,oInfo) {
+        if (err) return function() {cb(err);}
+        
+        var length = (oInfo.width < oInfo.height) ? oInfo.width : oInfo.height;
+        jimpImage
+          .crop(0,0,length,length)
+          [writeFunction](dest || mime,cb);
+      });
+    },
     flipVertical: function(pathOrBuffer,jimpImage,cb) {
       jimpImage
         .flip(false,true)
@@ -170,5 +203,153 @@ function imageWriteTypeFunction(type,destination,mime) {
     return typeFunctions[type];
   } catch(err) {
     return err;
+  }
+}
+
+/*-----------------------------------------------------------------------------------------
+|NAME:      processAndArchive (PUBLIC)
+|DESCRIPTION:  Takes the name of an image we stored in GridFS and processes it
+|PARAMETERS:  1. options(REQ): options required to process
+|                     options.guid(REQ): the GUID in the uid key in processed_images
+|                     options.archiver(REQ): instance of FileArchiver
+|             3. cb(REQ): the callback
+|                     cb(err,guid,newImageData)
+|ASSUMES:    Nothing
+|RETURNS:    Nothing
+-----------------------------------------------------------------------------------------*/
+function processAndArchive(options,cb) {
+  try {
+    var uniqueId = options.guid;
+    var arch = options.archiver || new require("./FileArchiver.js")();
+    var self = this;
+    
+    var imageData = [];
+    
+    async.waterfall([
+      function(callback) {
+        config.mongodb.db.collection("processed_images").find({guid:uniqueId}).toArray(function(e,record) {
+          if (e) return callback(e);
+          else if (!record || !record.length) return callback("There is no record with the uniqueidentifier: " + uniqueId);
+          
+          callback(null,record[0].imageName,record[0].processTypes);
+        });
+      },
+      function(mainImageFileName,typesSelected,callback) {
+        arch.fileHandler.getFile({file:mainImageFileName, encoding:"base64"},function(err,base64Data) {
+          if (err) return callback(err);
+          
+          var bufferData = new Buffer(base64Data,"base64");
+          
+          imageData.push({
+            name: mainImageFileName,
+            data: bufferData
+          });
+          callback(null,typesSelected);
+        });
+      },
+      function(typesSelected,callback) {
+        var typesSelectedKeys = Object.keys(typesSelected);
+        var updatedImages = [];
+        
+        async.each(typesSelectedKeys,function(sel,_callback) {
+          var key = sel;
+          var shouldCreate = typesSelected[key];
+          
+          if (shouldCreate) {
+            var newFileName = arch.fileHandler.getFileName(imageData[0].name,key);
+            
+            ImageHandler.applyChange({image:imageData[0].data, type:key},function(err,newFileBuffer) {
+              if (err) return _callback(err);
+              
+              updatedImages.push({
+                name: newFileName,
+                data: newFileBuffer
+              });
+              return _callback(null);
+            });
+          } else {
+            _callback(null);
+          }
+        },
+          function(__e) {
+            callback(__e,updatedImages);
+          }
+        );
+      },
+      function(allUpdatedImages,callback) {
+        async.each(allUpdatedImages,function(i,_callback) {
+          try {
+            i.stream = streamifier.createReadStream(i.data);
+            
+            arch.fileHandler.uploadFile({readStream:i.stream, filename:i.name, exactname:1},function(err,_newFileName) {
+              if (err) return _callback(err);
+              
+              imageData.push({
+                name: _newFileName,
+                data: i.data
+              });
+              
+              _callback(null);
+            });
+          } catch(_e) {
+            _callback(_e);
+          }
+        },
+          function(__e) {
+            callback(__e);
+          }
+        );
+      },
+      function(callback) {
+        async.each(imageData,function(iData,_callback) {
+          var called = false;
+          arch.addFile({fileName:iData.name, data:iData.data},function(data) {
+            if (!called) {
+              called = true;
+              _callback();
+            }
+          });
+        },
+        function(err) {
+          callback(err);
+        });            
+      },
+      function(callback) {
+        arch.done(function(err,_zipName) {
+          if (err) return callback(err);
+          
+          imageData.push({
+            name: _zipName,
+            data: "N/A"
+          });
+          callback();
+        });
+      },
+      function(callback) {
+        try {
+          var expDate = new Date();
+          expDate.setDate(expDate.getDate() + 30);
+          
+          config.mongodb.db.collection("processed_images").update({guid:uniqueId},{
+            $set: {
+              images: imageData.map(function(id) {return id.name}),
+              zip: imageData[imageData.length-1].name,
+              expiration_date: expDate,
+              isProcessed: true
+            }
+          },function(err) {
+            callback(err);
+          });
+        } catch(e) {
+          callback(e);
+        }
+      }
+    ],
+      function(err) {
+        cb(err,imageData);
+      }
+    );
+  } catch(err) {
+    cb(err);
   }
 }

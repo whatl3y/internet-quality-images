@@ -1,10 +1,18 @@
 function imageProcessingCtrl($scope,$http,Upload) {
   $scope.functions= {
     initialize: function() {
+      $(function() {
+        $( ".type-selection input[type='checkbox']" ).on("click",function(e) {
+          e.stopPropagation();
+          
+          $( this ).trigger('click');
+        });
+      });
+      
       $scope.functions.ajax({type:"init"},function(err,data) {
         if (err) return $scope.uploadError = err;
         
-        console.log(data);
+        //console.log(data);
         $scope.processTypes = data.types;
         $scope.functions.flipTypesSelected();
       });
@@ -54,21 +62,28 @@ function imageProcessingCtrl($scope,$http,Upload) {
       }
     },
     
+    typeToggle: function(key,e) {
+      if ($( e.target ).is( ":checkbox" ) || $( e.target ).hasClass( ".type-label" )) return;
+      
+      $scope.typesSelected[key]=!$scope.typesSelected[key];
+    },
+    
     uploadFile: function(file,name) {
       $scope.files = file;
       this.processImages();
     },
     
     processImages: function() {
+      delete($scope.uploadSuccess);
       delete($scope.uploadError);
       
       if ($scope.files) {
         var loader = new Core.Modals().asyncLoader({message:"We're processing your image now! Please feel free to continue working!"});
         $scope.functions.fileAjax($scope.files,{type:"processImage", types:$scope.typesSelected, email:$scope.email},function(err,data) {
+          loader.remove();
           if (err) return $scope.uploadError = err;
           
-          console.log(err,data);
-          loader.remove();
+          $scope.uploadSuccess = "Success! We will e-mail you shortly when your image has been processed and new images created. Reference identifier: " + data.guid;
         })
       } else {
         $scope.uploadError = "There are no images to process!";

@@ -17,14 +17,18 @@ block main
       div(class="row separate-vert-medium",data-ng-show="uploadError")
         div(class="col-xs-12 col-md-8 col-md-offset-2")
           alert(type="danger") {{ uploadError }}
+      div(class="row separate-vert-medium",data-ng-show="uploadSuccess")
+        div(class="col-xs-12 col-md-8 col-md-offset-2")
+          alert(type="success")
+            strong {{ uploadSuccess }}
       div(class="row")
         div(class="col-xs-12 text-center")
           button(class="btn btn-default",data-ng-click="functions.flipTypesSelected()") Flip Selections
       div(class="row text-left")
-        div(class="separate-vert-small col-xs-6 col-sm-4 col-md-3 col-lg-2",data-ng-repeat="(cat,types) in processTypes")
+        div(class="separate-vert-small col-xs-12 col-sm-4",data-ng-repeat="(cat,types) in processTypes")
           h1 {{ cat }}
           div(data-ng-repeat="type in types")
-            div(style="background:#F8F8F8",class="checkbox padding-medium")
+            div(class="checkbox type-selection padding-medium",data-ng-click="handlers.typeToggle(type.key,$event)")
               label
                 input(type="checkbox",name="types",data-ng-model="typesSelected[type.key]",data-ng-true-value="true",data-ng-false-value="false")
-                span {{ type.name }}
+                span(class="type-label") {{ type.name }}
