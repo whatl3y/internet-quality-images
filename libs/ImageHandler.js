@@ -229,7 +229,8 @@ function processAndArchive(options,cb) {
       function(callback) {
         config.mongodb.db.collection("processed_images").find({guid:uniqueId}).toArray(function(e,record) {
           if (e) return callback(e);
-          else if (!record || !record.length) return callback("There is no record with the uniqueidentifier: " + uniqueId);
+          if (!record || !record.length) return callback("There is no record with the uniqueidentifier: " + uniqueId);
+          if (record[0].isProcessed) return callback("This image has already been processed.");
           
           callback(null,record[0].imageName,record[0].processTypes);
         });

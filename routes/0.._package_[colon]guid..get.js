@@ -8,6 +8,7 @@
     function(callback) {
       config.mongodb.db.collection("processed_images").find({guid:imageGuid},{zip:1}).toArray(function(err,file) {
         if (err || !file.length) return callback(err || "There are no processed images with the unique identifier: " + imageGuid + ".");
+        if (!file[0].zip) return callback("This image has not been processed yet.");
         
         callback(null,file[0].zip);
       });
