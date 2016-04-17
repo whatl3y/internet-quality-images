@@ -11,7 +11,7 @@ async.waterfall([
   function(callback) {
     config.mongodb.db.collection("processed_images").find({isProcessed:{$ne:true}}).toArray(function(err,unprocessed) {
       callback(err,unprocessed);
-    }
+    });
   },
   function(unprocessed,callback) {
     if (!unprocessed || !unprocessed.length) return callback("No unprocessed files to process.");
