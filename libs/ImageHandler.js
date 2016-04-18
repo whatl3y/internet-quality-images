@@ -42,7 +42,7 @@ function change(obj,cb) {
   obj = obj || {};
   var image = obj.image || "";
   var type = obj.type || "medium";
-  var mime = obj.mime || Jimp.MIME_PNG;
+  var mime = obj.mime || Jimp.MIME_JPEG;
   
   async.waterfall([
     function(callback) {
@@ -163,39 +163,53 @@ function imageWriteTypeFunction(type,destination,mime) {
         [writeFunction](dest || mime,cb);
     },
     gray: function(pathOrBuffer,jimpImage,cb) {
-      jimpImage
-        .greyscale()
-        [writeFunction](dest || mime,cb);
+      maxWidth(pathOrBuffer,jimpImage,function(err,newJimpImage) {
+        newJimpImage
+          .greyscale()
+          [writeFunction](dest || mime,cb);
+      });      
     },
     invertColors: function(pathOrBuffer,jimpImage,cb) {
-      jimpImage
-        .invert()
-        [writeFunction](dest || mime,cb);
+      maxWidth(pathOrBuffer,jimpImage,function(err,newJimpImage) {
+        newJimpImage
+          .invert()
+          [writeFunction](dest || mime,cb);
+      });
     },
     flipHorizontal: function(pathOrBuffer,jimpImage,cb) {
-      jimpImage
-        .flip(true,false)
-        [writeFunction](dest || mime,cb);
+      maxWidth(pathOrBuffer,jimpImage,function(err,newJimpImage) {
+        newJimpImage
+          .flip(true,false)
+          [writeFunction](dest || mime,cb);
+      });
     },
     makeSquare: function(pathOrBuffer,jimpImage,cb) {
       imageInfo(pathOrBuffer,function(err,oInfo) {
         if (err) return function() {cb(err);}
         
         var length = (oInfo.width < oInfo.height) ? oInfo.width : oInfo.height;
-        jimpImage
-          .crop(0,0,length,length)
-          [writeFunction](dest || mime,cb);
+        jimpImage.crop(0,0,length,length).getBuffer(mime,function(err,buf) {
+          if (err) return function() {cb(err);}
+          
+          maxWidth(buf,jimpImage,function(err,newJimpImage) {
+            newJimpImage[writeFunction](dest || mime,cb);
+          });
+        });
       });
     },
     flipVertical: function(pathOrBuffer,jimpImage,cb) {
-      jimpImage
-        .flip(false,true)
-        [writeFunction](dest || mime,cb);
+      maxWidth(pathOrBuffer,jimpImage,function(err,newJimpImage) {
+        newJimpImage
+          .flip(false,true)
+          [writeFunction](dest || mime,cb);
+      });
     },
     opaque: function(pathOrBuffer,jimpImage,cb) {
-      jimpImage
-        .opacity(0.5)
-        [writeFunction](dest || mime,cb);
+      maxWidth(pathOrBuffer,jimpImage,function(err,newJimpImage) {
+        newJimpImage
+          .opacity(0.5)
+          [writeFunction](dest || Jimp.MIME_PNG,cb);
+      });
     }
   }
   
@@ -204,6 +218,27 @@ function imageWriteTypeFunction(type,destination,mime) {
   } catch(err) {
     return err;
   }
+}
+
+/*-----------------------------------------------------------------------------------------
+|NAME:      maxWidth (PUBLIC)
+|DESCRIPTION:  Takes the name of an image we stored in GridFS and processes it
+|PARAMETERS:  1. pathOrBuffer(REQ): 
+|             2. jimpImage(REQ)
+|             3. cb(REQ): the callback
+|                     cb(err,jimpImage)
+|ASSUMES:    Nothing
+|RETURNS:    Nothing
+-----------------------------------------------------------------------------------------*/
+function maxWidth(pathOrBuffer,jimpImage,cb) {
+  imageInfo(pathOrBuffer,function(err,oInfo) {
+    if (err) return function() {cb(err);}
+    
+    var w = (oInfo.width > 1024) ? 1024 : null;
+    if (w) return cb(null,jimpImage.resize(w,Jimp.AUTO));
+    
+    return cb(null,jimpImage);
+  });
 }
 
 /*-----------------------------------------------------------------------------------------

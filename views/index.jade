@@ -30,9 +30,9 @@ block main
           div(data-ng-repeat="type in types")
             div(class="type-selection click padding-medium separate-vert-small",data-ng-class="(typesSelected[type.key]) ? 'selected' : ''",data-ng-click="handlers.typeToggle(type.key,$event)")
               div(class="row")
-                div(data-ng-class="(type.example) ? 'col-xs-10': 'col-xs-12'")
+                div(data-ng-class="(type.example) ? 'col-xs-8 col-lg-10': 'col-xs-12'")
                   input(class="sr-only",type="checkbox",name="types",data-ng-model="typesSelected[type.key]",data-ng-true-value="true",data-ng-false-value="false")
                   span(style="margin-right:10px",class="glyphicon",data-ng-class="(typesSelected[type.key]) ? 'glyphicon-ok' : 'glyphicon-minus'")
                   span {{ type.name }}
-                div(class="col-xs-2",data-ng-show="type.example")
+                div(class="col-xs-4 col-lg-2",data-ng-show="type.example")
                   img(class="img-responsive img-thumbnail",data-ng-src="/file/{{ type.example }}",data-ng-click="handlers.launchImageExample(type.example)")
