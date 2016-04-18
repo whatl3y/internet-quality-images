@@ -35,4 +35,4 @@ block main
                   span(style="margin-right:10px",class="glyphicon",data-ng-class="(typesSelected[type.key]) ? 'glyphicon-ok' : 'glyphicon-minus'")
                   span {{ type.name }}
                 div(class="col-xs-4 col-lg-2",data-ng-show="type.example")
-                  img(class="img-responsive img-thumbnail",data-ng-src="/public/{{ type.example }}",data-ng-click="handlers.launchWindow('/public/' + type.example)")
+                  img(class="img-responsive img-thumbnail",data-ng-src="/public/images/examples/{{ type.example }}",data-ng-click="handlers.launchWindow('/public/images/examples/' + type.example)")
