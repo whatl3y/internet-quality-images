@@ -73,8 +73,8 @@ function imageProcessingCtrl($scope,$http,Upload) {
       this.processImages();
     },
     
-    launchImageExample: function(fileName) {
-      window.open("/file/" + fileName);
+    launchWindow: function(link) {
+      window.open(link);
     },
     
     processImages: function() {
