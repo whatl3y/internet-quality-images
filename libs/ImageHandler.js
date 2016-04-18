@@ -298,7 +298,8 @@ function processAndArchive(options,cb) {
           }
         },
           function(__e) {
-            callback(__e);
+            //callback(__e);
+            callback(__e,false);
           }
         );
       },
