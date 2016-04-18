@@ -15,7 +15,6 @@ function imageProcessingCtrl($scope,$http,Upload) {
         //console.log(data);
         $scope.processTypes = data.types;
         $scope.functions.flipTypesSelected();
-        $scope.functions.flipTypesSelected();
       });
     },
     
