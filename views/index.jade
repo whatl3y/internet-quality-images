@@ -10,7 +10,7 @@ block main
         div(class="col-xs-12 col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4")
           input(type="text",class="form-control input-lg separate-vert-small",placeholder="E-mail Address",data-ng-model="email")
           input(style="display:none",id="imageFile",type="file",class="form-control",fileread="newImage")
-          button(class="btn btn-success btn-lg",data-ng-click="handlers.fileInputClick()") Create Internet Friendly Images Now
+          button(class="btn btn-success btn-lg",data-ng-click="handlers.fileInputClick()") Create Images!
       div(class="row")
         div(class="col-xs-12")
           div We will e-mail you with a link to the processed files, stored as a .zip file once all images have been created.
@@ -28,7 +28,11 @@ block main
         div(class="separate-vert-small col-xs-12 col-sm-4",data-ng-repeat="(cat,types) in processTypes")
           h1 {{ cat }}
           div(data-ng-repeat="type in types")
-            div(class="checkbox type-selection padding-medium",data-ng-click="handlers.typeToggle(type.key,$event)")
-              label
-                input(type="checkbox",name="types",data-ng-model="typesSelected[type.key]",data-ng-true-value="true",data-ng-false-value="false")
-                span(class="type-label") {{ type.name }}
+            div(class="type-selection click padding-medium separate-vert-small",data-ng-class="(typesSelected[type.key]) ? 'selected' : ''",data-ng-click="handlers.typeToggle(type.key,$event)")
+              div(class="row")
+                div(data-ng-class="(type.example) ? 'col-xs-10': 'col-xs-12'")
+                  input(class="sr-only",type="checkbox",name="types",data-ng-model="typesSelected[type.key]",data-ng-true-value="true",data-ng-false-value="false")
+                  span(style="margin-right:10px",class="glyphicon",data-ng-class="(typesSelected[type.key]) ? 'glyphicon-ok' : 'glyphicon-minus'")
+                  span {{ type.name }}
+                div(class="col-xs-2",data-ng-show="type.example")
+                  img(class="img-responsive img-thumbnail",data-ng-src="/file/{{ type.example }}",data-ng-click="handlers.launchImageExample(type.example)")

@@ -305,6 +305,18 @@ function processAndArchive(options,cb) {
       function(callback) {
         async.each(imageData,function(iData,_callback) {
           var called = false;
+          
+          //If it takes longer than 30 seconds to add the file
+          //file, assume it will never create it and move on.
+          setTimeout(function() {
+            try {
+              if (!called) {
+                _callback();
+              }
+            } catch(err) {}
+          },30000);
+          
+          //try to add the file
           arch.addFile({fileName:iData.name, data:iData.data},function(data) {
             if (!called) {
               called = true;
@@ -317,6 +329,19 @@ function processAndArchive(options,cb) {
         });            
       },
       function(callback) {
+        var created = false;
+        
+        //If it takes longer than 30 seconds to create the zip
+        //file, assume it will never create it and move on.
+        setTimeout(function() {
+          try {
+            if (!created) {
+              callback(null,false);
+            }
+          } catch(err) {}
+        },30000);
+        
+        //finalize the archived file
         arch.done(function(err,_zipName) {
           if (err) return callback(err);
           
@@ -324,10 +349,12 @@ function processAndArchive(options,cb) {
             name: _zipName,
             data: "N/A"
           });
-          callback();
+          
+          created = true;
+          callback(null,true);
         });
       },
-      function(callback) {
+      function(createdZip,callback) {
         try {
           var expDate = new Date();
           expDate.setDate(expDate.getDate() + 30);
@@ -335,7 +362,7 @@ function processAndArchive(options,cb) {
           db.collection("processed_images").update({guid:uniqueId},{
             $set: {
               images: imageData.map(function(id) {return id.name}),
-              zip: imageData[imageData.length-1].name,
+              zip: (createdZip) ? imageData[imageData.length-1].name : false,
               expiration_date: expDate,
               isProcessed: true
             }

@@ -495,9 +495,16 @@ div.asyncloader {
 }
 
 .type-selection {
-  background: #F8F8F8;
+  background: #f0ad4e;
+  color: white;
 }
 
 .type-selection:hover {
-  background: #EFEFEF;
+  /*background: #286090;*/
+  font-weight: bold;
+}
+
+.type-selection.selected {
+  background: #5cb85c;
+  font-weight: bold;
 }

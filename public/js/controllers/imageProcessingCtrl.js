@@ -15,6 +15,7 @@ function imageProcessingCtrl($scope,$http,Upload) {
         //console.log(data);
         $scope.processTypes = data.types;
         $scope.functions.flipTypesSelected();
+        $scope.functions.flipTypesSelected();
       });
     },
     
@@ -71,6 +72,10 @@ function imageProcessingCtrl($scope,$http,Upload) {
     uploadFile: function(file,name) {
       $scope.files = file;
       this.processImages();
+    },
+    
+    launchImageExample: function(fileName) {
+      window.open("/file/" + fileName);
     },
     
     processImages: function() {
