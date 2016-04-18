@@ -302,6 +302,8 @@ function processAndArchive(options,cb) {
           }
         );
       },
+      
+      /*
       function(callback) {
         async.each(imageData,function(iData,_callback) {
           var called = false;
@@ -354,6 +356,8 @@ function processAndArchive(options,cb) {
           callback(null,true);
         });
       },
+      */
+      
       function(createdZip,callback) {
         try {
           var expDate = new Date();
