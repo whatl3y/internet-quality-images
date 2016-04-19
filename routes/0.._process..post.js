@@ -68,8 +68,6 @@
           function(newFileName,callback) {
             try {
               var uid = uuid.v1();
-              var expDate = new Date();
-              expDate.setDate(expDate.getDate() + 30);
               
               config.mongodb.db.collection("processed_images").insert({
                 guid: uid,

@@ -397,7 +397,7 @@ function processAndArchive(options,cb) {
       function(createdZip,callback) {
         try {
           var expDate = new Date();
-          expDate.setDate(expDate.getDate() + 30);
+          expDate.setDate(expDate.getDate() + config.admin.expirationDays);
           
           db.collection("processed_images").update({guid:uniqueId},{
             $set: {

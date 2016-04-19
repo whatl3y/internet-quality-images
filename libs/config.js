@@ -10,7 +10,7 @@ var self = module.exports = {
   },
   
   admin: {
-    SETTINGS: []
+    expirationDays: process.env.EXPIRATION_DAYS || 7
   },
   
   view: {
@@ -138,7 +138,13 @@ var self = module.exports = {
         
         return o;
       } else {
-        return null;
+        return {
+          service: "gmail",
+          auth: {
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASSWORD
+          }
+        };
       }
     }
   },

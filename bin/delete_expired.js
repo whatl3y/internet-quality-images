@@ -9,7 +9,7 @@ async.waterfall([
     });
   },
   function(callback) {
-    config.mongodb.db.collection("processed_images").find({expiration_date:{$lt:new Date()}},{_id:0,guid:1,images:1}).toArray(function(err,expired) {
+    config.mongodb.db.collection("processed_images").find({isProcessed:true, expiration_date:{$lt:new Date()}}, {_id:0,guid:1,images:1}).toArray(function(err,expired) {
       callback(err,expired);
     });
   },
@@ -55,6 +55,6 @@ async.waterfall([
     config.mongodb.MDB.close();
     if (err) return console.log(err);
     
-    console.log("Successfully processed all images at " + new Date() + "!");
+    console.log("Successfully deleted all expired packages at " + new Date() + "!");
   }
 );
