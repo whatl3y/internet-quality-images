@@ -99,6 +99,10 @@
             }
             
             res.json({success:true, guid:uid});
+            
+            new ChildProcesses({command:"bin/process"}).run(function(err,result) {
+              if (err) log.error(err);
+            });
           }
         );
       }
