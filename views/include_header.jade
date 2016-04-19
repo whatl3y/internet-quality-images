@@ -1,0 +1,13 @@
+- //access to imageProcessingCtrl in index.jade, find.jade
+div(class="header wrapper dark padding-small col-xs-12")
+  div(class="col-xs-2 col-sm-6")
+    div(class="separate-vert-small")
+      a(style="color:inherit",href="/") Home
+  div(class="col-xs-10 col-sm-6")
+    div(class="text-right")
+      form(class="form-inline",data-ng-submit="handlers.findImages()")
+        div(class="form-group")
+          label
+            span Find already processed images: 
+            input(class="form-control",placeholder="Reference ID",data-ng-model="packageId")
+            button(type="submit",class="btn btn-default margin-left-small") Find Images

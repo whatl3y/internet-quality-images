@@ -1,0 +1,28 @@
+extends layout
+
+block main
+  div(class="row",data-ng-controller="imageProcessingCtrl")
+    include include_header.jade
+  div(class="row")
+    div(class="col-xs-12")
+      h2= "Package ID: " + guid
+  div(class="row")
+    #error
+      if error
+        div(class="col-xs-12")
+          div(class="padding-large text-center")
+            h2
+              alert(type="danger")= error
+    #images
+      if images
+        div(class="col-xs-12")
+          h4= "Package expiration date: " + exp
+        div(class="col-xs-12 col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2")
+          div(class="wrapper shadowsmall padding-medium")
+            div(class="text-large") Images in package: 
+            each image, ind in images
+              div(class="separate-vert-small")
+                h4
+                  span= (ind+1) + ". "
+                  span
+                    a(href="javascript:void(0)",onclick="window.open('/file/" + image + "')")= image

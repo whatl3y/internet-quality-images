@@ -2,22 +2,23 @@ extends layout
 
 block main
   div(class="row",data-ng-controller="imageProcessingCtrl")
+    include include_header.jade
     div(class="col-xs-12 text-center")
       div(class="row")
         div(class="col-xs-12")
           h1 Create Internet Friendly Images!
-      div(class="row separate-vert-medium")
+      div(class="row separate-vert-small")
         div(class="col-xs-12 col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4")
           input(type="text",class="form-control input-lg separate-vert-small",placeholder="E-mail Address",data-ng-model="email")
           input(style="display:none",id="imageFile",type="file",class="form-control",fileread="newImage")
-          button(class="btn btn-success btn-lg",data-ng-click="handlers.fileInputClick()") Create Images!
+          button(class="btn btn-success btn-lg",data-ng-click="handlers.fileInputClick()") Upload &amp; Process Image
       div(class="row")
-        div(class="col-xs-12")
+        div(class="row",data-ng-show="uploadError")
+          div(class="col-xs-12 col-md-8 col-md-offset-2")
+            alert(type="danger") {{ uploadError }}
+        div(class="col-xs-12 separate-vert-small")
           div We will e-mail you with a link to the processed files, stored as a .zip file once all images have been created.
-      div(class="row separate-vert-medium",data-ng-show="uploadError")
-        div(class="col-xs-12 col-md-8 col-md-offset-2")
-          alert(type="danger") {{ uploadError }}
-      div(class="row separate-vert-medium",data-ng-show="uploadSuccess")
+      div(class="row",data-ng-show="uploadSuccess")
         div(class="col-xs-12 col-md-8 col-md-offset-2")
           alert(type="success")
             strong {{ uploadSuccess }}
@@ -35,4 +36,4 @@ block main
                   span(style="margin-right:10px",class="glyphicon",data-ng-class="(typesSelected[type.key]) ? 'glyphicon-ok' : 'glyphicon-minus'")
                   span {{ type.name }}
                 div(class="col-xs-4 col-lg-2",data-ng-show="type.example")
-                  img(class="img-responsive img-thumbnail",data-ng-src="/public/images/examples/{{ type.example }}",data-ng-click="handlers.launchWindow('/public/images/examples/' + type.example)")
+                  img(class="img-responsive img-thumbnail",data-ng-src="{{ type.example }}",data-ng-click="handlers.launchWindow(type.example)")

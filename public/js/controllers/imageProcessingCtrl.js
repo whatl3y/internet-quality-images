@@ -92,6 +92,12 @@ function imageProcessingCtrl($scope,$http,Upload) {
       } else {
         $scope.uploadError = "There are no images to process!";
       }
+    },
+    
+    findImages: function() {
+      if (typeof $scope.packageId === "string" && $scope.packageId) {
+        location.href = "/find/" + $scope.packageId;
+      }
     }
   }
   
