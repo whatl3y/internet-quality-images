@@ -22,24 +22,19 @@ async.waterfall([
       var imageGuid = imagePackage.guid;
       var imagesAndZip = imagePackage.images;
       
-      async.parallel([
-        function(__callback) {
-          async.each(imagesAndZip,function(file,___callback) {
-            fh.deleteFile({filename:file},function(_err) {
-              ___callback(_err);
-            });
-          },
-            function(_err) {
-              __callback(_err);
-            }
-          );
-        },
+      imagesAndZip = imagesAndZip.map(function(i) {
+        return function(__callback) {
+          fh.deleteFile({filename:i},__callback);
+        }
+      });
+      
+      async.parallel(imagesAndZip.concat([
         function(__callback) {
           config.mongodb.db.collection("processed_images").remove({guid:imageGuid},function(_err) {
             __callback(_err);
           });
         }
-      ],
+      ]),
         function(_err) {
           _callback(_err);
         }
