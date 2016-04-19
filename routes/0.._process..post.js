@@ -5,6 +5,7 @@
     var fileName = fileInfo.name;
     var filePath = fileInfo.path;
     var fileType = fileInfo.type;
+    var fileSizeBytes = fileInfo.size;
   }
   
   var audit = new Audit({ip:req.ip, hostname:req.hostname, ua:req.headers['user-agent']});
@@ -39,11 +40,18 @@
     
     case "processImage":
       if (!filePath) {
-        res.json({success:false, error:"There was no file to process."});
+        return res.json({success:false, error:"There was no file to process."});
         
       } else if (!(fileType == "image/png" || fileType == "image/jpeg" || fileType == "image/bmp")) {
         res.json({success:false, error:"We currently only support PNG, JPEG, and BMP image types. Please make sure your image is not corrupted and try again."});
         log.info("Uploaded an unsupported image type: " + fileType);
+        
+        fs.unlink(filePath,function(e) {
+          if (e) log.error(e);
+        });
+        
+      } else if (fileSizeBytes/1024 > config.admin.maxUploadImageSizeKb) {
+        res.json({success:false, error:"We're sorry, but this image is too large for us to handle at this time. Currently our max image file size is: " + config.admin.maxUploadImageSizeKb + "kb. Once we upgrade our infrastructure we'll gladly process bigger images :)."});
         
         fs.unlink(filePath,function(e) {
           if (e) log.error(e);
