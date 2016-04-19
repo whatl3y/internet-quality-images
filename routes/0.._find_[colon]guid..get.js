@@ -6,7 +6,7 @@
   async.waterfall([
     function(callback) {
       config.mongodb.db.collection("processed_images").find({guid:imageGuid},{_id:0,images:1,isProcessed:1,expiration_date:1}).toArray(function(err,file) {
-        if (err || !file.length) return callback(err || "There are no processed images with the package identifier: " + imageGuid);
+        if (err || !file.length) return callback(err || "Either this is an invalid package identifier or this package has expired and permanently deleted. Please go back and upload your image to have it processed again.");
         if (!file[0].isProcessed) return callback("This image has not been processed yet.");
         
         callback(null,file[0].images,file[0].expiration_date);

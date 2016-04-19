@@ -5,7 +5,7 @@ block main
     include include_header.jade
   div(class="row")
     div(class="col-xs-12")
-      h2= "Package ID: " + guid
+      h2= "Image Package ID: " + guid
   div(class="row")
     #error
       if error
@@ -16,7 +16,7 @@ block main
     #images
       if images
         div(class="col-xs-12")
-          h4= "Package expiration date: " + exp
+          h4= "Expiration date: " + exp
         div(class="col-xs-12 col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2")
           div(class="wrapper shadowsmall padding-medium")
             div(class="text-large") Images in package: 
