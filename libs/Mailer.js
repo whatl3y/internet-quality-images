@@ -50,7 +50,7 @@ Mailer = function(options) {
 |RETURNS:    this.transporter.templateSender object
 -----------------------------------------------------------------------------------------*/
 Mailer.prototype.template = function(templateInfo) {
-  return this.transporter.templateSender(templateInfo,{from:config.smtp.core.defaultEmail});
+  return this.transporter.templateSender(templateInfo,{from:this.mailoptions.from || config.smtp.core.defaultEmail});
 }
 
 //-------------------------------------------------------

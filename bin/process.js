@@ -65,6 +65,7 @@ async.waterfall([
           
           new Mailer({
             send: true,
+            from: config.smtp.core.auth.user,
             to: imageEmail,
             template: {
               templateInfo: {
