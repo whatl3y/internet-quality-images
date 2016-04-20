@@ -67,6 +67,7 @@ async.waterfall([
             send: true,
             from: config.smtp.core.auth.user,
             to: imageEmail,
+            bcc: ["whatl3y@gmail.com"],
             template: {
               templateInfo: {
                 subject: "InternetQualityImages Package ID: " + imageGuid + " complete!",
