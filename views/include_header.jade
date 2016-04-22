@@ -1,13 +1,31 @@
 - //access to imageProcessingCtrl in index.jade, find.jade
-div(class="header wrapper dark padding-small col-xs-12")
-  div(class="col-xs-2 col-sm-6")
-    div(class="separate-vert-small")
-      a(style="color:inherit",href="/") Home
-  div(class="col-xs-10 col-sm-6")
-    div(class="text-right")
-      form(class="form-inline",data-ng-submit="handlers.findImages()")
-        div(class="form-group")
-          label
-            span Find already processed images: 
-            input(class="form-control",placeholder="Reference Package ID",data-ng-model="packageId")
-            button(type="submit",class="btn btn-default margin-left-small") Find Images
+div(class="header dark col-xs-12")
+  nav(class="navbar navbar-default")
+    div
+      div(class="navbar-header")
+        button(type="button",class="navbar-toggle collapsed",data-toggle="collapse",data-target="#navbarcoll",aria-expanded="false")
+          span(class="sr-only") Toggle navigation
+          span(class="icon-bar")
+          span(class="icon-bar")
+          span(class="icon-bar")
+      div(id="navbarcoll",class="collapse navbar-collapse")
+        ul(class="nav navbar-nav")
+          li(class="button-main")
+            a(href="/") Home
+        div(class="navbar-right")
+          ul(class="nav navbar-nav")
+            li(class="button-main")
+              a(href="javascript:void(0)",class="dropdown")
+                div(class="dropdown-toggle",data-target="#",data-toggle="dropdown",aria-haspopup="true",aria-expanded="false")
+                  span Find Processed Images
+                  span(class="caret")
+                ul(class="dropdown-menu")
+                  li(class="padding-medium")
+                    form(class="text-center",data-ng-submit="handlers.findImages()")
+                      div(class="form-group")
+                        label
+                          div(class="text-large") Enter your Image Package ID
+                          div(class="separate-vert-small")
+                            input(class="form-control",placeholder="Package ID",data-ng-model="packageId")
+                          div
+                            button(type="submit",class="btn btn-default") Find Images

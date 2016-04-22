@@ -4,36 +4,68 @@ block main
   div(class="row",data-ng-controller="imageProcessingCtrl")
     include include_header.jade
     div(class="col-xs-12 text-center")
-      div(class="row")
-        div(class="col-xs-12")
-          h1 Create Internet Friendly Images!
-      div(class="row separate-vert-small")
-        div(class="col-xs-12 col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4")
-          input(type="text",class="form-control input-lg separate-vert-small",placeholder="E-mail Address",data-ng-model="email")
-          input(style="display:none",id="imageFile",type="file",class="form-control",fileread="newImage")
-          button(class="btn btn-success btn-lg",data-ng-click="handlers.fileInputClick()") Upload &amp; Process Image
-      div(class="row")
-        div(class="row",data-ng-show="uploadError")
-          div(class="col-xs-12 col-md-8 col-md-offset-2")
-            alert(type="danger") {{ uploadError }}
-        div(class="col-xs-12 separate-vert-small")
-          div We will e-mail you with a link to the processed files, stored as a .zip file once all images have been created.
-      div(class="row",data-ng-show="uploadSuccess")
-        div(class="col-xs-12 col-md-8 col-md-offset-2")
-          alert(type="success")
-            strong {{ uploadSuccess }}
-      div(class="row")
-        div(class="col-xs-12 text-center")
-          button(class="btn btn-default",data-ng-click="functions.flipTypesSelected()") Flip Selections
       div(class="row text-left")
-        div(class="separate-vert-small col-xs-12 col-sm-4",data-ng-repeat="(cat,types) in processTypes")
-          h1 {{ cat }}
-          div(data-ng-repeat="type in types")
-            div(class="type-selection click padding-medium separate-vert-small",data-ng-class="(typesSelected[type.key]) ? 'selected' : ''",data-ng-click="handlers.typeToggle(type.key,$event)")
-              div(class="row")
-                div(data-ng-class="(type.example) ? 'col-xs-8 col-lg-10': 'col-xs-12'")
-                  input(class="sr-only",type="checkbox",name="types",data-ng-model="typesSelected[type.key]",data-ng-true-value="true",data-ng-false-value="false")
-                  span(style="margin-right:10px",class="glyphicon",data-ng-class="(typesSelected[type.key]) ? 'glyphicon-ok' : 'glyphicon-minus'")
-                  span {{ type.name }}
-                div(class="col-xs-4 col-lg-2",data-ng-show="type.example")
-                  img(class="img-responsive img-thumbnail",data-ng-src="{{ type.example }}",data-ng-click="handlers.launchWindow(type.example)")
+        div(style="background:#F5F5F5",class="col-xs-12 col-sm-4 col-md-3")
+          div(class="row")
+            div(class="col-xs-12 text-center")
+              h1 Create Internet Friendly Images Now!
+          div(class="row separate-vert-small text-center")
+            div(class="col-xs-12")
+              input(type="text",class="form-control input-lg separate-vert-small",placeholder="E-mail Address",data-ng-model="email")
+              input(style="display:none",id="imageFile",type="file",class="form-control",fileread="newImage")
+              button(class="btn btn-primary btn-lg",data-ng-click="handlers.fileInputClick()") Upload &amp; Process Image
+          div(class="row",data-ng-show="uploadError")
+              div(class="col-xs-12")
+                alert(type="danger") {{ uploadError }}
+          div(class="row",data-ng-show="uploadSuccess")
+            div(class="col-xs-12")
+              alert(type="success")
+                strong {{ uploadSuccess }}
+          div(class="row")
+            div(class="col-xs-12 separate-vert-small")
+              small We will e-mail you with a link to the processed files, stored as a .zip file once all images have been created.
+          div.row
+            div(class="col-xs-12")
+              h2
+                u Processing Options
+            div.col-xs-12
+              small
+                small Click on the various options to select or remove that option, and click on the example image to see an example of how that option changes the source image.
+            div(class="col-xs-12 text-center separate-vert-small")
+              button(class="btn btn-default",data-ng-click="functions.flipTypesSelected()") Flip Selections
+            div(class="separate-vert-small col-xs-12",data-ng-repeat="(cat,types) in processTypes")
+              h4 {{ cat }}
+              div(data-ng-repeat="type in types")
+                div(class="type-selection click padding-medium separate-vert-small",data-ng-class="(typesSelected[type.key]) ? 'selected' : ''",data-ng-click="handlers.typeToggle(type.key,$event)")
+                  div(class="row")
+                    div(data-ng-class="(type.example) ? 'col-xs-8 col-lg-10': 'col-xs-12'")
+                      div
+                        input(class="sr-only",type="checkbox",name="types",data-ng-model="typesSelected[type.key]",data-ng-true-value="true",data-ng-false-value="false")
+                        span(style="margin-right:10px",class="glyphicon",data-ng-class="(typesSelected[type.key]) ? 'glyphicon-ok' : 'glyphicon-minus'")
+                        span {{ type.name }} 
+                        span
+                          small
+                            small
+                              i  - {{ (typesSelected[type.key]) ? 'selected' : 'not selected' }}
+                    div(class="col-xs-4 col-lg-2",data-ng-show="type.example")
+                      img(class="img-responsive img-thumbnail",data-ng-src="{{ type.example }}",data-ng-click="handlers.launchWindow(type.example)")
+        div(class="col-xs-12 col-sm-8 col-md-9 light wrapper")
+          div.home-wrapper.text-center
+            div.header
+              div.text-large What do we do?
+            div(class="text-large")
+              div.padding-xlarge.separate-vert-small
+                i
+                  div 
+                    | What we do is simple. We create a painfully easy way for those of us who aren't graphic design experts to do some simple yet powerful
+                    | image manipulation and processing in a matter of seconds and with a few clicks of a mouse.
+                  div.separate-vert-large.text-left
+                    small
+                      small
+                        div Things we can do with images:
+                        ul
+                          li Compress and/or resize large, production images (results in taking up less disk space, less bandwidth to load)
+                          li Alter the color of images
+                          li Change the orientation of images
+                          li Rotate images by a set rotation
+                  div Take 30 seconds and process one of your images now!

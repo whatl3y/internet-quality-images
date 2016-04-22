@@ -204,7 +204,7 @@ colgroup col.info {
 }
 
 .dark {
-  background: #333333;
+  background: #65829F;
   color: #FFFFFF;
 }
 
@@ -216,12 +216,14 @@ colgroup col.info {
   background: #F5F5F5;
 }
 
-.wrapper.light > .header {
-  border: 2px solid;
-  margin-bottom: 5px;
-  border-radius: 2px;
-  background: #333333;
-  color: #FFFFFF;
+.wrapper.light  .header {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border-top: 6px solid;
+  border-bottom: 6px solid;
+  background: #65829F;
+  color: #F5F5F5;
+  padding: 10px;
 }
 
 .wrapper.dark.gray {
@@ -246,7 +248,7 @@ colgroup col.info {
 }
 
 .divider.color {
-  background-color: #333333;
+  background-color: #65829F;
 }
 
 .divider.thick {
@@ -264,7 +266,7 @@ colgroup col.info {
 }
 
 .modal-header {
-	background: #333333;
+	background: #65829F;
 	color: white;
 }
 
@@ -278,7 +280,7 @@ colgroup col.info {
 }
 
 .panel-header {
-  border-color: #333333 !important;
+  border-color: #65829F !important;
 }
 
 .panel-danger {
@@ -319,10 +321,6 @@ li.switch-grey {
 }
 
 .dropdown-menu {
-  z-index: 99 !important;
-}
-
-.quicksearch-dropdown {
   color: black;
   width: 400px;
 }
@@ -360,7 +358,7 @@ div.asyncloader {
   position: fixed;
   right: 10px;
   bottom: 10px;
-  background: #333333;
+  background: #65829F;
   color: #FFFFFF;
   border-radius: 10px;
   padding: 10px;
@@ -402,6 +400,16 @@ div.asyncloader {
   padding-left: 15px;
 }
 
+.padding-hor-large {
+  padding-left: 50px;
+  padding-right: 50px;
+}
+
+.padding-hor-massive {
+  padding-left: 100px;
+  padding-right: 100px;
+}
+
 .padding-small {
   padding: 5px;
 }
@@ -412,6 +420,14 @@ div.asyncloader {
 
 .padding-large {
   padding: 30px;
+}
+
+.padding-xlarge {
+  padding: 60px;
+}
+
+.padding-massive {
+  padding: 100px;
 }
 
 .margin-left-small {
@@ -471,7 +487,7 @@ div.asyncloader {
 }
 
 .text-theme-color {
-  color: #333333 !important;
+  color: #65829F !important;
 }
 
 .text-xsmall {
@@ -495,8 +511,8 @@ div.asyncloader {
 }
 
 .type-selection {
-  background: #f0ad4e;
-  color: white;
+  background: #FEFEFF;
+  color: black;
 }
 
 .type-selection:hover {
@@ -505,6 +521,19 @@ div.asyncloader {
 }
 
 .type-selection.selected {
-  background: #5cb85c;
+  background: #337ab7;
+  color: white;
   font-weight: bold;
+}
+
+.home-wrapper {
+  font-size: 1.1em;
+}
+
+.home-wrapper > * {
+  /*padding: 10px;*/
+}
+
+.home-wrapper > .header {
+  font-size: 2em;
 }

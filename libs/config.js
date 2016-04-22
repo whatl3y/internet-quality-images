@@ -10,7 +10,7 @@ var self = module.exports = {
   },
   
   admin: {
-    maxUploadImageSizeKb: 1024,
+    maxUploadImageSizeKb: 3072,
     expirationDays: process.env.EXPIRATION_DAYS || 7
   },
   
