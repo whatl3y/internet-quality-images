@@ -51,7 +51,7 @@ async.waterfall([
           .filter(function(i) {
             return path.extname(i) != ".zip"
           }).map(function(i) {
-            return "<a href='http://internetqualityimages.com/file/" + i + "'>" + i + "</a>";
+            return "<a href='http://internetqualityimages.com/file/" + imageGuid + "/" + i + "'>" + i + "</a>";
           }).join("</li><li>") + "</li>";
         
         var gH = new GetHTML({fullpath: path.join(__dirname,"..","views","email","process.html")});

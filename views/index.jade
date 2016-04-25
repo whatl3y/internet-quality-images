@@ -42,11 +42,11 @@ block main
                       div
                         input(class="sr-only",type="checkbox",name="types",data-ng-model="typesSelected[type.key]",data-ng-true-value="true",data-ng-false-value="false")
                         span(style="margin-right:10px",class="glyphicon",data-ng-class="(typesSelected[type.key]) ? 'glyphicon-ok' : 'glyphicon-minus'")
-                        span {{ type.name }} 
-                        span
+                        span {{ type.name }}
+                      div
+                        small
                           small
-                            small
-                              i  - {{ (typesSelected[type.key]) ? 'selected' : 'not selected' }}
+                            i {{ (typesSelected[type.key]) ? 'selected' : 'not selected' }}
                     div(class="col-xs-4 col-lg-2",data-ng-show="type.example")
                       img(class="img-responsive img-thumbnail",data-ng-src="{{ type.example }}",data-ng-click="handlers.launchWindow(type.example)")
         div(class="col-xs-12 col-sm-8 col-md-9 light wrapper")

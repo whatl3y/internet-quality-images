@@ -83,6 +83,10 @@ input.emphasize {
   margin-bottom: 0px !important;
 }
 
+.navbar-header .glyphicon {
+  color: white;
+}
+
 .navbar-default {
   background-color: transparent !important;
   background-color: initial !important;
