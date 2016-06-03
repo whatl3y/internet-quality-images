@@ -27,7 +27,8 @@
     function(err,zipFileName,file) {
       if (err) {
         log.error(err);
-        return res.send((err instanceof Error) ? "There was a problem trying to get your processed images. Please try again." : err);
+        //return res.send((err instanceof Error) ? "There was a problem trying to get your processed images. Please try again." : err);
+        return res.redirect("/");
       }
       
       var contentType = file.contentType;

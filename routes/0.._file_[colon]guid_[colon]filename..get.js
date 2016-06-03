@@ -39,7 +39,10 @@
     function(err,fileName,file) {
       if (err) {
         if (err instanceof Error) log.error(err);
-        return res.send((err instanceof Error) ? "There was a problem trying to get your processed images. Please try again." : err);
+        else log.info(err);
+          
+        //return res.send((err instanceof Error) ? "There was a problem trying to get your processed images. Please try again." : err);
+        return res.redirect("/");
       }
       
       var contentType = file.contentType;
