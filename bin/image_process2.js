@@ -5,36 +5,51 @@ var lwip = require('lwip');
 
 //example callback
 //node bin/image_process2 -p ~/Pictures/DSC_0017.jpg
+//node bin/image_process2 -p ~/Pictures/DSC_0017.jpg -o resize
 var imagePath = argv.p || argv.path;
+var op = argv.o || argv.operation || null;
 
-var ProcessImage = function(filePath) {
+var ProcessImage = function(filePath,options) {
+  options = options || {};
+
   var self = this;
-  this.WIDTH = 1920;
-  this.QUALITY = 50;
+  this.WIDTH = options.width || 1920;
+  this.QUALITY = options.quality || 50;
 
   this.path = filePath;
 
-  this.process = function(cb) {
+  this.operationProcessFunction = function(image,operation) {
+    return function(_callback) {
+      async.waterfall([
+        function(__callback) {
+          image.clone(__callback);
+        },
+        function(clonedImage,__callback) {
+          self.operations[op](clonedImage,__callback);
+        }
+      ],
+        function(err,result) {
+          return _callback(err,result);
+        }
+      );
+    };
+  }
+
+  this.process = function(operation,cb) {
+    cb = (typeof operation === "function") ? operation : cb;
+    operation = (typeof operation === "function") ? null : operation;
+
     var go = function(image,callback) {
       var processParallelFunctions = [];
-      for (var _operation in self.operations) {
-        processParallelFunctions.push((function() {
-          var op = _operation;
-          return function(_callback) {
-            async.waterfall([
-              function(__callback) {
-                image.clone(__callback);
-              },
-              function(clonedImage,__callback) {
-                self.operations[op](clonedImage,__callback);
-              }
-            ],
-              function(err,result) {
-                return _callback(err,result);
-              }
-            );
-          };
-        })());
+      if (typeof operation === "string" && operation) {
+        processParallelFunctions.push(self.operationProcessFunction(image,operation));
+      } else {
+        for (var _operation in self.operations) {
+          processParallelFunctions.push((function() {
+            var op = _operation;
+            return self.operationProcessFunction(image,op);
+          })());
+        }
       }
 
       async.parallel(processParallelFunctions,function(err,results) {
@@ -90,6 +105,27 @@ var ProcessImage = function(filePath) {
     );
   }
 
+  this.lighten = function(image,appendToFile,ratio,cb) {
+    async.waterfall([
+      function(callback) {
+        self.resize(image,callback);
+      },
+      function(newImage,callback) {
+        newImage.lighten(ratio,callback);
+      },
+      function(newImage,callback) {
+        var newpath = self.newPath(appendToFile);
+        self.write(newImage,newpath,function(err) {
+          return callback(err,newpath);
+        });
+      }
+    ],
+      function(err,newImagePath) {
+        return cb(err,newImagePath);
+      }
+    );
+  }
+
   this.newPath = function(newpathstring) {
     var extension = path.extname(this.path);
     var lastPeriod = this.path.lastIndexOf(".");
@@ -114,6 +150,18 @@ var ProcessImage = function(filePath) {
           return cb(err,newImagePath);
         }
       );
+    },
+
+    lightenBy20: function(image,cb) {
+      self.lighten(image,"_lightenBy20",0.2,cb);
+    },
+
+    lightenBy40: function(image,cb) {
+      self.lighten(image,"_lightenBy40",0.4,cb);
+    },
+
+    lightenBy60: function(image,cb) {
+      self.lighten(image,"_lightenBy60",0.6,cb);
     },
 
     cropSquareTopLeft: function(image,cb) {
@@ -187,7 +235,7 @@ var ProcessImage = function(filePath) {
 
 
 
-new ProcessImage(imagePath).process(function(err,filePaths) {
+new ProcessImage(imagePath).process(op,function(err,filePaths) {
   if (process.send) return process.send({error:err, paths:filePaths});
   console.log(err,filePaths);
 });
