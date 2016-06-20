@@ -3,6 +3,8 @@ var path = require("path");
 var async = require("async");
 var lwip = require('lwip');
 
+//example callback
+//node bin/image_process2 -p ~/Pictures/DSC_0017.jpg
 var imagePath = argv.p || argv.path;
 
 var ProcessImage = function(filePath) {
