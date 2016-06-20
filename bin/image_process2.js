@@ -25,7 +25,7 @@ var ProcessImage = function(filePath,options) {
           image.clone(__callback);
         },
         function(clonedImage,__callback) {
-          self.operations[op](clonedImage,__callback);
+          self.operations[operation](clonedImage,__callback);
         }
       ],
         function(err,result) {
