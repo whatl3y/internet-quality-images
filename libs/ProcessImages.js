@@ -1,15 +1,8 @@
-var argv = require('minimist')(process.argv.slice(2));
 var path = require("path");
 var async = require("async");
-var lwip = require('lwip');
+var lwip = require("lwip");
 
-//example callback
-//node bin/image_process2 -p ~/Pictures/DSC_0017.jpg
-//node bin/image_process2 -p ~/Pictures/DSC_0017.jpg -o resize
-var imagePath = argv.p || argv.path;
-var op = argv.o || argv.operation || null;
-
-var ProcessImage = function(filePath,options) {
+module.exports = ProcessImages = function(filePath,options) {
   options = options || {};
 
   var self = this;
@@ -59,7 +52,7 @@ var ProcessImage = function(filePath,options) {
 
     async.waterfall([
       function(callback) {
-        lwip.open(imagePath,callback);
+        lwip.open(self.path,callback);
       },
       go
     ],
@@ -88,6 +81,27 @@ var ProcessImage = function(filePath,options) {
     async.waterfall([
       function(callback) {
         image.crop(left,top,right,bottom,callback);
+      },
+      function(newImage,callback) {
+        self.resize(newImage,callback);
+      },
+      function(newImage,callback) {
+        var newpath = self.newPath(appendToFile);
+        self.write(newImage,newpath,function(err) {
+          return callback(err,newpath);
+        });
+      }
+    ],
+      function(err,newImagePath) {
+        return cb(err,newImagePath);
+      }
+    );
+  }
+
+  this.rotate = function(image,appendToFile,degrees, cb) {
+    async.waterfall([
+      function(callback) {
+        image.rotate(degrees,callback);
       },
       function(newImage,callback) {
         self.resize(newImage,callback);
@@ -164,6 +178,18 @@ var ProcessImage = function(filePath,options) {
       self.lighten(image,"_lightenBy60",0.6,cb);
     },
 
+    rotate90: function(image,cb) {
+      self.rotate(image,"_rotate90",90,cb);
+    },
+
+    rotate180: function(image,cb) {
+      self.rotate(image,"_rotate180",180,cb);
+    },
+
+    rotate270: function(image,cb) {
+      self.rotate(image,"_rotate270",270,cb);
+    },
+
     cropSquareTopLeft: function(image,cb) {
       var hw = self.heightWidthRatio(image);
       var totalWidth = (hw <= 1) ? Math.floor(image.width()*hw) : image.width();
@@ -230,12 +256,3 @@ var ProcessImage = function(filePath,options) {
     }
   }
 }
-
-
-
-
-
-new ProcessImage(imagePath).process(op,function(err,filePaths) {
-  if (process.send) return process.send({error:err, paths:filePaths});
-  console.log(err,filePaths);
-});
