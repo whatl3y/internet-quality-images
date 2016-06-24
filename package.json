@@ -33,7 +33,6 @@
     "minimist": "^1.2.0",
     "jimp": "^0.2.21",
     "imageinfo": "^1.0.4",
-    "lwip": "latest",
     "archiver": "^1.0.0",
     "streamifier": "^0.1.1"
   },
