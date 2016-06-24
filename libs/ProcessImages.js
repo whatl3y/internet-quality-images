@@ -6,8 +6,8 @@ module.exports = ProcessImages = function(filePath,options) {
   options = options || {};
 
   var self = this;
-  this.WIDTH = options.width || 1920;
-  this.QUALITY = options.quality || 50;
+  this.WIDTH = Number(options.width || 1920);
+  this.QUALITY = Number(options.quality || 50);
 
   this.path = filePath;
 
@@ -57,7 +57,7 @@ module.exports = ProcessImages = function(filePath,options) {
       go
     ],
       function(err,newFilePaths) {
-        return cb(err,newFilePaths);
+        return (typeof cb === "function") ? cb(err,newFilePaths) : null;
       }
     );
   }
@@ -98,7 +98,7 @@ module.exports = ProcessImages = function(filePath,options) {
     );
   }
 
-  this.rotate = function(image,appendToFile,degrees, cb) {
+  this.rotate = function(image, appendToFile, degrees, cb) {
     async.waterfall([
       function(callback) {
         image.rotate(degrees,callback);
@@ -119,13 +119,55 @@ module.exports = ProcessImages = function(filePath,options) {
     );
   }
 
-  this.lighten = function(image,appendToFile,ratio,cb) {
+  this.sharpen = function(image, appendToFile, amplitude, cb) {
     async.waterfall([
       function(callback) {
-        self.resize(image,callback);
+        image.sharpen(amplitude,callback);
       },
       function(newImage,callback) {
-        newImage.lighten(ratio,callback);
+        self.resize(newImage,callback);
+      },
+      function(newImage,callback) {
+        var newpath = self.newPath(appendToFile);
+        self.write(newImage,newpath,function(err) {
+          return callback(err,newpath);
+        });
+      }
+    ],
+      function(err,newImagePath) {
+        return cb(err,newImagePath);
+      }
+    );
+  }
+
+  this.saturate = function(image, appendToFile, delta, cb) {
+    async.waterfall([
+      function(callback) {
+        image.saturate(delta,callback);
+      },
+      function(newImage,callback) {
+        self.resize(newImage,callback);
+      },
+      function(newImage,callback) {
+        var newpath = self.newPath(appendToFile);
+        self.write(newImage,newpath,function(err) {
+          return callback(err,newpath);
+        });
+      }
+    ],
+      function(err,newImagePath) {
+        return cb(err,newImagePath);
+      }
+    );
+  }
+
+  this.lighten = function(image, appendToFile, ratio, cb) {
+    async.waterfall([
+      function(callback) {
+        image.lighten(ratio,callback);
+      },
+      function(newImage,callback) {
+        self.resize(newImage,callback);
       },
       function(newImage,callback) {
         var newpath = self.newPath(appendToFile);
@@ -166,6 +208,18 @@ module.exports = ProcessImages = function(filePath,options) {
       );
     },
 
+    sharpenBy20: function(image,cb) {
+      self.sharpen(image,"_sharpenBy20",20,cb);
+    },
+
+    sharpenBy40: function(image,cb) {
+      self.sharpen(image,"_sharpenBy40",40,cb);
+    },
+
+    sharpenBy60: function(image,cb) {
+      self.sharpen(image,"_sharpenBy60",60,cb);
+    },
+
     lightenBy20: function(image,cb) {
       self.lighten(image,"_lightenBy20",0.2,cb);
     },
@@ -176,6 +230,18 @@ module.exports = ProcessImages = function(filePath,options) {
 
     lightenBy60: function(image,cb) {
       self.lighten(image,"_lightenBy60",0.6,cb);
+    },
+
+    saturateBy20: function(image,cb) {
+      self.saturate(image,"_saturateBy20",0.2,cb);
+    },
+
+    saturateBy40: function(image,cb) {
+      self.saturate(image,"_saturateBy40",0.4,cb);
+    },
+
+    saturateBy60: function(image,cb) {
+      self.saturate(image,"_saturateBy60",0.6,cb);
     },
 
     rotate90: function(image,cb) {
